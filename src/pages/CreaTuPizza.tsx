@@ -142,7 +142,7 @@ function CreaTuPizza() {
                   transition: 'all 0.2s'
                 }}
               >
-                {b.emoji} {b.nombre}
+                {b.nombre}
               </button>
             ))}
           </div>
