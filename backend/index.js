@@ -1,36 +1,34 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { connectDB } from './config/database';
+import pizzaRoutes from './routes/pizzas';
+
+console.log('1️⃣ Iniciando servidor...');
+
+dotenv.config();
+console.log('2️⃣ Variables de entorno cargadas');
+
+console.log('3️⃣ Conectando a MongoDB...');
+connectDB();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+console.log(`4️⃣ Puerto configurado: ${PORT}`);
+
 app.use(cors());
 app.use(express.json());
+console.log('5️⃣ Middlewares configurados');
 
-// Conectar a MongoDB
-mongoose.connect('mongodb://localhost:27017/pizzeria')
-  .then(() => console.log('Conectado a MongoDB'))
-  .catch(err => console.error('Error al conectar a MongoDB:', err));
-// Esquema de pizza
-const pizzaSchema = new mongoose.Schema({
-  nombre: String,
-  precio: Number,
+app.use('/api/pizzas', pizzaRoutes);
+
+app.get('/api/health', (req, res) => {
+  res.json({ message: 'Servidor funcionando' });
+});
+console.log('6️⃣ Rutas configuradas');
+
+app.listen(PORT, () => {
+  console.log(`7️⃣ 🚀 Servidor en http://localhost:${PORT}`);
 });
 
-const Pizza = mongoose.model('Pizza', pizzaSchema);
-
-// Rutas de la API
-app.get('/pizzas', async (req, res) => {
-  const pizzas = await Pizza.find();
-  res.json(pizzas);
-});
-
-app.post('/pizzas', async (req, res) => {
-  const nuevaPizza = new Pizza(req.body);
-  await nuevaPizza.save();
-  res.json(nuevaPizza);
-});
-
-// Levantar servidor
-app.listen(3000, () => {
-  console.log('Backend corriendo en http://localhost:3000');
-});
+console.log('8️⃣ Código completo, esperando conexiones...');
