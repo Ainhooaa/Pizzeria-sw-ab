@@ -145,10 +145,10 @@ function SobreNosotros() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
         }}>
           <h2 style={{ color: '#c0392b', fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontStyle: 'italic' }}>Contacto</h2>
-          <p style={{ color: '#444', marginTop: '15px', lineHeight: '2' }}>📞 Teléfono: +34 945 123 456</p>
-          <p style={{ color: '#444', lineHeight: '2' }}>📧 Email: info@masamadre.com</p>
-          <p style={{ color: '#444', lineHeight: '2' }}>💬 WhatsApp: +34 600 123 456</p>
-          <p style={{ color: '#444', lineHeight: '2' }}>📍 Calle Nieves Cano 12, Vitoria-Gasteiz</p>
+          <p style={{ color: '#444', marginTop: '15px', lineHeight: '2' }}>Teléfono: +34 945 123 456</p>
+          <p style={{ color: '#444', lineHeight: '2' }}>Email: info@masamadre.com</p>
+          <p style={{ color: '#444', lineHeight: '2' }}>WhatsApp: +34 600 123 456</p>
+          <p style={{ color: '#444', lineHeight: '2' }}>Calle Nieves Cano 12, Vitoria-Gasteiz</p>
         </div>
 
       </div>
