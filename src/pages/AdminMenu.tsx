@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import Navbar from '../components/Navbar'
 
 interface Pizza {
   _id: string
@@ -60,38 +61,7 @@ function AdminMenu() {
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
       {/* NAVBAR */}
-      <nav style={{
-        backgroundColor: 'white',
-        padding: '15px 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <img
-          src="/logo.jpeg"
-          alt="Masa Madre"
-          onClick={() => navigate('/')}
-          style={{ height: '60px', cursor: 'pointer' }}
-        />
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {[['Ver pedidos', '/admin/pedidos'], ['Gestionar menú', '/admin/menu']].map(([label, path]) => (
-            <span
-              key={path}
-              onClick={() => navigate(path)}
-              style={{ cursor: 'pointer', color: '#555', fontSize: '0.95rem' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
-              onMouseLeave={e => e.currentTarget.style.color = '#555'}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-        <span style={{ color: '#c0392b', fontWeight: 'bold' }}>👤 Admin</span>
-      </nav>
+      <Navbar />
 
       <div style={{ flex: 1, maxWidth: '900px', margin: '0 auto', padding: '60px 20px', width: '100%' }}>
 

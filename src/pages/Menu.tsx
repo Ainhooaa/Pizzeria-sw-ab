@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import Navbar from '../components/Navbar'
 
 interface Pizza {
   _id: string
@@ -41,65 +42,7 @@ function Menu() {
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0' }}>
 
       {/* NAVBAR */}
-      <nav style={{
-        backgroundColor: 'white',
-        padding: '15px 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <img
-          src="/logo.jpeg"
-          alt="Masa Madre"
-          onClick={() => navigate('/')}
-          style={{ height: '60px', cursor: 'pointer' }}
-        />
-        <div style={{ display: 'flex', gap: '30px' }}>
-          {[['Inicio', '/'], ['Menú', '/menu'], ['Crea tu pizza', '/crea-tu-pizza'], ['Sobre nosotros', '/sobre-nosotros']].map(([label, path]) => (
-            <span
-              key={path}
-              onClick={() => navigate(path)}
-              style={{ cursor: 'pointer', color: '#555', fontSize: '0.95rem' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
-              onMouseLeave={e => e.currentTarget.style.color = '#555'}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <button
-            onClick={() => navigate('/login')}
-            style={{
-              backgroundColor: 'transparent',
-              border: '2px solid #c0392b',
-              color: '#c0392b',
-              padding: '8px 20px',
-              borderRadius: '50px',
-              cursor: 'pointer',
-              fontFamily: 'Georgia, serif'
-            }}>
-            Login
-          </button>
-          <button
-            onClick={() => navigate('/carrito')}
-            style={{
-              backgroundColor: '#c0392b',
-              border: 'none',
-              color: 'white',
-              padding: '8px 20px',
-              borderRadius: '50px',
-              cursor: 'pointer',
-              fontFamily: 'Georgia, serif'
-            }}>
-            Carrito
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* HERO */}
       <div style={{
