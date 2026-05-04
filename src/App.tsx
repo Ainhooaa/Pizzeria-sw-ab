@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { CarritoProvider } from './context/CarritoContext'
 import Inicio from './pages/Inicio'
 import Menu from './pages/Menu'
 import CreaTuPizza from './pages/CreaTuPizza'
@@ -14,22 +15,24 @@ import AdminMenu from './pages/AdminMenu'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Inicio />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/crea-tu-pizza" element={<CreaTuPizza />} />
-        <Route path="/carrito" element={<Carrito />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/confirmacion" element={<Confirmacion />} />
-        <Route path="/sobre-nosotros" element={<SobreNosotros />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/mis-pedidos" element={<MisPedidos />} />
-        <Route path="/mis-pizzas" element={<MisPizzas />} />
-        <Route path="/admin/pedidos" element={<AdminPedidos />} />
-        <Route path="/admin/menu" element={<AdminMenu />} />
-      </Routes>
-    </BrowserRouter>
+    <CarritoProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Inicio />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/crea-tu-pizza" element={<CreaTuPizza />} />
+          <Route path="/carrito" element={<Carrito />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/confirmacion" element={<Confirmacion />} />
+          <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/mis-pedidos" element={<MisPedidos />} />
+          <Route path="/mis-pizzas" element={<MisPizzas />} />
+          <Route path="/admin/pedidos" element={<AdminPedidos />} />
+          <Route path="/admin/menu" element={<AdminMenu />} />
+        </Routes>
+      </BrowserRouter>
+    </CarritoProvider>
   )
 }
 

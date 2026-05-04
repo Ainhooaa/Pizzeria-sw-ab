@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
+import { useCarrito } from '../context/CarritoContext'
 
 interface Pizza {
   _id: string
@@ -14,6 +15,7 @@ function Menu() {
   const navigate = useNavigate()
   const [pizzas, setPizzas] = useState<Pizza[]>([])
   const [cargando, setCargando] = useState(true)
+  const { agregarAlCarrito } = useCarrito()
 
   useEffect(() => {
     fetch('http://localhost:5000/api/pizzas')
@@ -27,16 +29,30 @@ function Menu() {
         setCargando(false)
       })
   }, [])
+
   const getImagen = (nombre: string) => {
-  const imagenes: Record<string, string> = {
-    'Margarita': 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop',
-    'Barbacoa': 'https://images.unsplash.com/photo-1555072956-7758afb20e8f?w=400&h=400&fit=crop',
-    'Vegetariana': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop',
-    'Cuatro Quesos': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop',
-    'Pepperoni': 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=400&fit=crop',
+    const imagenes: Record<string, string> = {
+      'Margarita': 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop',
+      'Barbacoa': 'https://images.unsplash.com/photo-1555072956-7758afb20e8f?w=400&h=400&fit=crop',
+      'Vegetariana': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop',
+      'Cuatro Quesos': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop',
+      'Pepperoni': 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=400&fit=crop',
+    }
+    return imagenes[nombre] || 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop'
   }
-  return imagenes[nombre] || 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop'
-}
+
+  const handleAgregarAlCarrito = (pizza: Pizza) => {
+    agregarAlCarrito({
+      id: pizza._id,
+      nombre: pizza.nombre,
+      ingredientes: pizza.ingredientes.join(', '),
+      precio: pizza.precio,
+      imagen: getImagen(pizza.nombre),
+      tipo: 'menu'
+    })
+    // Feedback opcional: mostrar un mensaje o notificación
+    console.log(`🍕 ${pizza.nombre} añadida al carrito`)
+  }
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0' }}>
@@ -105,10 +121,10 @@ function Menu() {
                 }}
               >
                 <img
-  src={getImagen(pizza.nombre)}
-  alt={pizza.nombre}
-  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-/>
+                  src={getImagen(pizza.nombre)}
+                  alt={pizza.nombre}
+                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                />
                 <div style={{ padding: '20px' }}>
                   <h3 style={{ color: '#2c2c2c', margin: '0 0 8px', fontSize: '1.3rem' }}>
                     {pizza.nombre}
@@ -121,6 +137,10 @@ function Menu() {
                       {pizza.precio.toFixed(2)}€
                     </span>
                     <button
+                      onClick={(e) => {
+                        e.stopPropagation() // Evita que el click en el botón active el div padre
+                        handleAgregarAlCarrito(pizza)
+                      }}
                       style={{
                         backgroundColor: '#c0392b',
                         color: 'white',

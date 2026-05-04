@@ -1,41 +1,27 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-
-const itemsIniciales = [
-  {
-    id: 1,
-    nombre: 'Margherita',
-    ingredientes: 'Tomate, mozzarella, albahaca',
-    precio: 9.99,
-    cantidad: 1,
-    imagen: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=100&h=100&fit=crop'
-  },
-  {
-    id: 2,
-    nombre: 'Mi pizza especial',
-    ingredientes: 'Barbacoa, pollo, cebolla, mozzarella',
-    precio: 11.49,
-    cantidad: 2,
-    imagen: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=100&h=100&fit=crop'
-  }
-]
+import { useCarrito } from '../context/CarritoContext'
 
 function Carrito() {
   const navigate = useNavigate()
-  const [items, setItems] = useState(itemsIniciales)
+  const { items, cambiarCantidad, eliminarItem, total } = useCarrito()
 
-  const cambiarCantidad = (id: number, delta: number) => {
-    setItems(prev => prev
-      .map(item => item.id === id ? { ...item, cantidad: item.cantidad + delta } : item)
-      .filter(item => item.cantidad > 0)
-    )
+  const procederAlPago = () => {
+    const usuarioStr = localStorage.getItem('usuario')
+    const usuario = usuarioStr ? JSON.parse(usuarioStr) : null
+    
+    if (!usuario) {
+      alert('Debes iniciar sesión para hacer un pedido')
+      navigate('/login')
+      return
+    }
+    
+    if (items.length === 0) {
+      alert('Tu carrito está vacío')
+      return
+    }
+    
+    navigate('/checkout')
   }
-
-  const eliminar = (id: number) => {
-    setItems(prev => prev.filter(item => item.id !== id))
-  }
-
-  const total = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0)
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -53,11 +39,11 @@ function Carrito() {
         zIndex: 100
       }}>
         <img
-  src="/logo.jpeg"
-  alt="Masa Madre"
-  onClick={() => navigate('/')}
-  style={{ height: '60px', cursor: 'pointer' }}
-/>
+          src="/logo.jpeg"
+          alt="Masa Madre"
+          onClick={() => navigate('/')}
+          style={{ height: '60px', cursor: 'pointer' }}
+        />
         <div style={{ display: 'flex', gap: '30px' }}>
           {[['Inicio', '/'], ['Menú', '/menu'], ['Crea tu pizza', '/crea-tu-pizza'], ['Sobre nosotros', '/sobre-nosotros']].map(([label, path]) => (
             <span
@@ -182,7 +168,7 @@ function Carrito() {
                     {(item.precio * item.cantidad).toFixed(2)}€
                   </span>
                   <button
-                    onClick={() => eliminar(item.id)}
+                    onClick={() => eliminarItem(item.id)}
                     style={{
                       backgroundColor: 'transparent',
                       border: 'none',
@@ -214,7 +200,7 @@ function Carrito() {
                 </span>
               </div>
               <button
-                onClick={() => navigate('/checkout')}
+                onClick={procederAlPago}
                 style={{
                   width: '100%',
                   backgroundColor: '#c0392b',
