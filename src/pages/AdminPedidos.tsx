@@ -26,7 +26,7 @@ function AdminPedidos() {
   const [filtro, setFiltro] = useState('todos')
 
   useEffect(() => {
-    fetch('http://localhost:3000/pedidos')
+    fetch('http://localhost:5000/api/pedidos')
       .then(res => res.json())
       .then(data => {
         setPedidos(data)
@@ -36,7 +36,7 @@ function AdminPedidos() {
   }, [])
 
   const cambiarEstado = (id: string, estado: string) => {
-    fetch(`http://localhost:3000/pedidos/${id}`, {
+    fetch(`http://localhost:5000/api/pedidos/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ estado })

@@ -32,7 +32,7 @@ function MisPedidos() {
       navigate('/login')
       return
     }
-    fetch(`http://localhost:3000/pedidos/${usuario.email}`)
+    fetch(`http://localhost:5000/api/pedidos/${usuario.email}`)
       .then(res => res.json())
       .then(data => {
         setPedidos(data)

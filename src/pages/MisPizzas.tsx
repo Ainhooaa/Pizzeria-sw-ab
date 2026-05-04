@@ -16,10 +16,12 @@ function MisPizzas() {
   const [pizzas, setPizzas] = useState<PizzaPersonalizada[]>([])
   const [cargando, setCargando] = useState(true)
 
-  const emailUsuario = 'besma@ehu.eus' // luego esto vendrá del login
-
+  const usuarioStr = localStorage.getItem('usuario')
+  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null
+  const emailUsuario = usuario?.email
+  
   useEffect(() => {
-    fetch(`http://localhost:3000/pizzasPersonalizadas/${emailUsuario}`)
+    fetch(`http://localhost:5000/api/pizzasPersonalizadas/${emailUsuario}`)
       .then(res => res.json())
       .then(data => {
         setPizzas(data)
@@ -29,7 +31,7 @@ function MisPizzas() {
   }, [])
 
   const eliminar = (id: string) => {
-    fetch(`http://localhost:3000/pizzasPersonalizadas/${id}`, { method: 'DELETE' })
+    fetch(`http://localhost:5000/api/pizzasPersonalizadas/${id}`, { method: 'DELETE' })
       .then(() => setPizzas(prev => prev.filter(p => p._id !== id)))
   }
 

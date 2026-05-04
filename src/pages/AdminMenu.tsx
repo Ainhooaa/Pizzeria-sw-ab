@@ -20,7 +20,7 @@ function AdminMenu() {
   const [precio, setPrecio] = useState('')
 
   useEffect(() => {
-    fetch('http://localhost:3000/pizzas')
+    fetch('http://localhost:5000/api/pizzas')
       .then(res => res.json())
       .then(data => {
         setPizzas(data)
@@ -30,7 +30,7 @@ function AdminMenu() {
   }, [])
 
   const eliminar = (id: string) => {
-    fetch(`http://localhost:3000/pizzas/${id}`, { method: 'DELETE' })
+    fetch(`http://localhost:5000/api/pizzas/${id}`, { method: 'DELETE' })
       .then(() => setPizzas(prev => prev.filter(p => p._id !== id)))
   }
 
@@ -42,7 +42,7 @@ function AdminMenu() {
       precio: parseFloat(precio),
       disponible: true
     }
-    fetch('http://localhost:3000/pizzas', {
+    fetch('http://localhost:5000/api/pizzas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nueva)

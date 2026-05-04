@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import Navbar from '../components/Navbar'
 
 function Login() {
   const navigate = useNavigate()
@@ -8,37 +9,45 @@ function Login() {
   const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       setError('Rellena todos los campos')
       return
     }
+    
     setCargando(true)
     setError('')
 
-    fetch('http://localhost:3000/usuarios/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        setCargando(false)
-        if (data.error) {
-          setError(data.error)
-        } else {
-          localStorage.setItem('usuario', JSON.stringify(data))
-          if (data.rol === 'admin') {
-            navigate('/admin/pedidos')
-          } else {
-            navigate('/')
-          }
-        }
+    try {
+      const res = await fetch('http://localhost:5000/api/usuarios/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       })
-      .catch(() => {
+      
+      const data = await res.json()
+      
+      if (!res.ok || data.error) {
+        setError(data.error || 'Email o contraseña incorrectos')
         setCargando(false)
-        setError('Error al conectar con el servidor')
-      })
+        return
+      }
+      
+      // Guardar usuario en localStorage
+      localStorage.setItem('usuario', JSON.stringify(data))
+      
+      // Redirigir según el rol (admin o cualquier otro)
+      if (data.rol === 'admin') {
+        navigate('/admin/pedidos')
+      } else {
+        navigate('/')
+      }
+      
+    } catch (error) {
+      console.error('Error de conexión:', error)
+      setError('Error al conectar con el servidor')
+      setCargando(false)
+    }
   }
 
   return (
@@ -96,7 +105,7 @@ function Login() {
         </button>
       </nav>
 
-      {/* FORMULARIO */}
+      {/* FORMULARIO DE LOGIN */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -215,6 +224,18 @@ function Login() {
             {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
 
+          {/* Botón para ir al registro (si no existe página de registro) */}
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <span style={{ color: '#999', fontSize: '0.85rem' }}>
+              ¿No tienes cuenta?{' '}
+              <span
+                onClick={() => navigate('/registro')}
+                style={{ color: '#c0392b', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Regístrate aquí
+              </span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -227,7 +248,7 @@ function Login() {
         fontSize: '0.9rem'
       }}>
         <p style={{ color: 'white', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: '1.3rem' }}>
-        Masa Madre
+          Masa Madre
         </p>
         <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>

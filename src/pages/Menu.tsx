@@ -16,7 +16,7 @@ function Menu() {
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:3000/pizzas')
+    fetch('http://localhost:5000/api/pizzas')
       .then(res => res.json())
       .then(data => {
         setPizzas(data)
