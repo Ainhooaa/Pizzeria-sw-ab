@@ -1,5 +1,5 @@
 import express from 'express';
-import { Usuario } from '../models/Usuario';
+import { Usuario, IUsuario } from '../models/Usuario';
 
 const router = express.Router();
 
@@ -38,14 +38,22 @@ router.put('/:id', async (req, res) => {
 // Registro de usuario
 router.post('/registro', async (req, res) => {
   try {
+    console.log('📝 Registrando usuario:', req.body.email);
     const existe = await Usuario.findOne({ email: req.body.email });
     if (existe) {
       return res.status(400).json({ error: 'El email ya está registrado' });
     }
     const nuevo = new Usuario(req.body);
     await nuevo.save();
-    res.status(201).json(nuevo);
+    
+    // Devolver el usuario sin la contraseña
+    const usuarioResponse = nuevo.toObject();
+    delete (usuarioResponse as Partial<IUsuario>).password;
+    console.log('✅ Usuario guardado con contraseña hasheada');
+
+    res.status(201).json(usuarioResponse);
   } catch (error) {
+    console.error('Error en registro:', error);
     res.status(500).json({ error: 'Error al registrar usuario' });
   }
 });
@@ -53,15 +61,28 @@ router.post('/registro', async (req, res) => {
 // Login de usuario
 router.post('/login', async (req, res) => {
   try {
-    const usuario = await Usuario.findOne({ 
-      email: req.body.email, 
-      password: req.body.password 
-    });
+    const { email, password } = req.body;
+    
+    const usuario = await Usuario.findOne({ email });
+    
     if (!usuario) {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
-    res.json(usuario);
+    
+    // Comparar contraseña usando el método del modelo
+    const passwordValida = await usuario.compararPassword(password);
+    
+    if (!passwordValida) {
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
+    }
+    
+    // Devolver usuario sin contraseña
+    const usuarioResponse = usuario.toObject();
+    delete (usuarioResponse as Partial<IUsuario>).password;
+    
+    res.json(usuarioResponse);
   } catch (error) {
+    console.error('Error en login:', error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 });
