@@ -38,7 +38,6 @@ router.put('/:id', async (req, res) => {
 // Registro de usuario
 router.post('/registro', async (req, res) => {
   try {
-    console.log('📝 Registrando usuario:', req.body.email);
     const existe = await Usuario.findOne({ email: req.body.email });
     if (existe) {
       return res.status(400).json({ error: 'El email ya está registrado' });
@@ -49,7 +48,6 @@ router.post('/registro', async (req, res) => {
     // Devolver el usuario sin la contraseña
     const usuarioResponse = nuevo.toObject();
     delete (usuarioResponse as Partial<IUsuario>).password;
-    console.log('✅ Usuario guardado con contraseña hasheada');
 
     res.status(201).json(usuarioResponse);
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
+import { useCarrito } from '../context/CarritoContext'
 
 interface PizzaPersonalizada {
   _id: string
@@ -13,14 +14,20 @@ interface PizzaPersonalizada {
 
 function MisPizzas() {
   const navigate = useNavigate()
+  const { agregarAlCarrito } = useCarrito()
   const [pizzas, setPizzas] = useState<PizzaPersonalizada[]>([])
   const [cargando, setCargando] = useState(true)
 
   const usuarioStr = localStorage.getItem('usuario')
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null
   const emailUsuario = usuario?.email
-  
+
   useEffect(() => {
+    if (!usuario) {
+      navigate('/login')
+      return
+    }
+    
     fetch(`http://localhost:5000/api/pizzasPersonalizadas/${emailUsuario}`)
       .then(res => res.json())
       .then(data => {
@@ -28,11 +35,29 @@ function MisPizzas() {
         setCargando(false)
       })
       .catch(() => setCargando(false))
-  }, [])
+  }, [usuario, emailUsuario, navigate])
 
   const eliminar = (id: string) => {
-    fetch(`http://localhost:5000/api/pizzasPersonalizadas/${id}`, { method: 'DELETE' })
-      .then(() => setPizzas(prev => prev.filter(p => p._id !== id)))
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta pizza?')) {
+      fetch(`http://localhost:5000/api/pizzasPersonalizadas/${id}`, { method: 'DELETE' })
+        .then(() => setPizzas(prev => prev.filter(p => p._id !== id)))
+        .catch(() => alert('Error al eliminar la pizza'))
+    }
+  }
+
+  const añadirAlCarrito = (pizza: PizzaPersonalizada) => {
+    const ingredientesTexto = pizza.ingredientesElegidos.map(i => i.nombre).join(', ')
+    
+    agregarAlCarrito({
+      id: pizza._id,
+      nombre: pizza.nombrePizza,
+      ingredientes: ingredientesTexto,
+      precio: pizza.precioTotal,
+      imagen: 'https://plus.unsplash.com/premium_photo-1690056321981-dfe9e75e0247?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D%20esta%20se%20podria%20ver?',
+      tipo: 'personalizada'
+    })
+    
+    alert(`🍕 "${pizza.nombrePizza}" añadida al carrito`)
   }
 
   return (
@@ -106,7 +131,7 @@ function MisPizzas() {
               </p>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
-                  onClick={() => navigate('/carrito')}
+                  onClick={() => añadirAlCarrito(pizza)}
                   style={{
                     backgroundColor: '#c0392b',
                     color: 'white',
@@ -115,8 +140,11 @@ function MisPizzas() {
                     borderRadius: '50px',
                     cursor: 'pointer',
                     fontFamily: 'Georgia, serif',
-                    fontSize: '0.85rem'
+                    fontSize: '0.85rem',
+                    transition: 'transform 0.2s'
                   }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   Añadir al carrito
                 </button>
@@ -159,9 +187,9 @@ function MisPizzas() {
         fontSize: '0.9rem'
       }}>
         <p style={{ color: 'white', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: '1.3rem' }}>
-        Masa Madre
+          Masa Madre
         </p>
-        <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz ·+34 945 123 456</p>
+        <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>
       </footer>
 

@@ -1,29 +1,47 @@
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { useCarrito } from '../context/CarritoContext'
 
 function Inicio() {
   const navigate = useNavigate()
+  const { agregarAlCarrito } = useCarrito()
 
   const pizzasDestacadas = [
     {
+      id: 'margherita',
       nombre: 'Margherita',
       ingredientes: 'Tomate, mozzarella, albahaca',
       precio: '9.99',
       imagen: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop'
     },
     {
+      id: 'pepperoni',
       nombre: 'Pepperoni',
       ingredientes: 'Tomate, mozzarella, pepperoni',
       precio: '11.99',
       imagen: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=400&fit=crop'
     },
     {
+      id: 'cuatro-quesos',
       nombre: 'Cuatro Quesos',
       ingredientes: 'Mozzarella, gorgonzola, parmesano, brie',
       precio: '12.99',
       imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop'
     }
   ]
+
+  const handleAgregarAlCarrito = (pizza: any) => {
+    agregarAlCarrito({
+      id: pizza.id,
+      nombre: pizza.nombre,
+      ingredientes: pizza.ingredientes,
+      precio: parseFloat(pizza.precio),
+      imagen: pizza.imagen,
+      tipo: 'menu'
+    })
+    // Feedback opcional
+    console.log(`🍕 ${pizza.nombre} añadida al carrito`)
+  }
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0' }}>
@@ -102,41 +120,41 @@ function Inicio() {
               Crea tu pizza
             </button>
             <button
-  onClick={() => navigate('/mis-pedidos')}
-  style={{
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: '2px solid white',
-    padding: '14px 35px',
-    fontSize: '1rem',
-    borderRadius: '50px',
-    cursor: 'pointer',
-    fontFamily: 'Georgia, serif',
-    transition: 'transform 0.2s'
-  }}
-  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
->
-  Mis pedidos
-</button>
-<button
-  onClick={() => navigate('/mis-pizzas')}
-  style={{
-    backgroundColor: 'transparent',
-    color: 'white',
-    border: '2px solid white',
-    padding: '14px 35px',
-    fontSize: '1rem',
-    borderRadius: '50px',
-    cursor: 'pointer',
-    fontFamily: 'Georgia, serif',
-    transition: 'transform 0.2s'
-  }}
-  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
->
-  Mis pizzas
-</button>
+              onClick={() => navigate('/mis-pedidos')}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: '2px solid white',
+                padding: '14px 35px',
+                fontSize: '1rem',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                fontFamily: 'Georgia, serif',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Mis pedidos
+            </button>
+            <button
+              onClick={() => navigate('/mis-pizzas')}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: '2px solid white',
+                padding: '14px 35px',
+                fontSize: '1rem',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                fontFamily: 'Georgia, serif',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Mis pizzas
+            </button>
           </div>
         </div>
       </div>
@@ -158,7 +176,7 @@ function Inicio() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
           {pizzasDestacadas.map((pizza) => (
             <div
-              key={pizza.nombre}
+              key={pizza.id}
               style={{
                 backgroundColor: 'white',
                 borderRadius: '20px',
@@ -187,6 +205,10 @@ function Inicio() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#c0392b', fontWeight: 'bold', fontSize: '1.3rem' }}>{pizza.precio}€</span>
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleAgregarAlCarrito(pizza)
+                  }}
                   style={{
                     backgroundColor: '#c0392b',
                     color: 'white',
@@ -195,8 +217,12 @@ function Inicio() {
                     borderRadius: '50px',
                     cursor: 'pointer',
                     fontFamily: 'Georgia, serif',
-                    fontSize: '0.85rem'
-                  }}>
+                    fontSize: '0.85rem',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
                   Añadir
                 </button>
               </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useCarrito } from '../context/CarritoContext'
 
 const bases = [
   { id: 'tomate', nombre: 'Tomate'},
@@ -26,9 +27,12 @@ const PRECIO_BASE = 7.99
 
 function CreaTuPizza() {
   const navigate = useNavigate()
+  const { agregarAlCarrito } = useCarrito()
   const [base, setBase] = useState('tomate')
   const [seleccionados, setSeleccionados] = useState<string[]>([])
   const [nombre, setNombre] = useState('')
+  const [guardando, setGuardando] = useState(false)
+  const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'exito' | 'error' } | null>(null)
 
   const toggleIngrediente = (id: string) => {
     setSeleccionados(prev =>
@@ -36,10 +40,136 @@ function CreaTuPizza() {
     )
   }
 
+  const ingredientesSeleccionadosDetalle = seleccionados.map(id => {
+    const ing = ingredientes.find(i => i.id === id)
+    return { nombre: ing?.nombre || '', precioExtra: ing?.precio || 0, cantidad: 1 }
+  })
+
   const precioTotal = PRECIO_BASE + seleccionados.reduce((total, id) => {
     const ing = ingredientes.find(i => i.id === id)
     return total + (ing ? ing.precio : 0)
   }, 0)
+
+  const mostrarMensaje = (texto: string, tipo: 'exito' | 'error') => {
+    setMensaje({ texto, tipo })
+    setTimeout(() => setMensaje(null), 3000)
+  }
+
+  const getUsuario = () => {
+    const usuarioStr = localStorage.getItem('usuario')
+    return usuarioStr ? JSON.parse(usuarioStr) : null
+  }
+
+  const guardarPizza = async () => {
+    if (!nombre.trim()) {
+      mostrarMensaje('Por favor, dale un nombre a tu pizza', 'error')
+      return
+    }
+
+    if (seleccionados.length === 0) {
+      mostrarMensaje('Por favor, selecciona al menos un ingrediente', 'error')
+      return
+    }
+
+    const usuario = getUsuario()
+    
+    // Si no está logueado, guardar datos en sessionStorage y redirigir
+    if (!usuario) {
+      // Guardar la pizza temporalmente
+      const pizzaTemp = {
+        nombre,
+        base,
+        seleccionados,
+        ingredientesDetalle: ingredientesSeleccionadosDetalle,
+        precioTotal
+      }
+      sessionStorage.setItem('pizzaPendiente', JSON.stringify(pizzaTemp))
+      mostrarMensaje('Debes iniciar sesión para guardar la pizza', 'error')
+      setTimeout(() => {
+        navigate('/login')
+      }, 1500)
+      return
+    }
+
+    setGuardando(true)
+
+    const pizzaPersonalizada = {
+      emailUsuario: usuario.email,
+      nombrePizza: nombre,
+      ingredientesElegidos: ingredientesSeleccionadosDetalle,
+      precioBase: PRECIO_BASE,
+      precioTotal: precioTotal,
+      estado: 'activa'
+    }
+
+    try {
+      const res = await fetch('http://localhost:5000/api/pizzasPersonalizadas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pizzaPersonalizada)
+      })
+
+      if (res.ok) {
+        mostrarMensaje(`✅ "${nombre}" guardada correctamente`, 'exito')
+        setNombre('')
+        setSeleccionados([])
+        setBase('tomate')
+      } else {
+        mostrarMensaje('❌ Error al guardar la pizza', 'error')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      mostrarMensaje('Error de conexión con el servidor', 'error')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  // Efecto para guardar pizza pendiente después de login
+  useEffect(() => {
+  const pizzaPendiente = sessionStorage.getItem('pizzaPendiente')
+  const usuario = getUsuario()
+  
+  if (pizzaPendiente && usuario) {
+    sessionStorage.removeItem('pizzaPendiente')
+    const pizza = JSON.parse(pizzaPendiente)
+    setNombre(pizza.nombre)
+    setBase(pizza.base)
+    setSeleccionados(pizza.seleccionados)
+    // Pequeño delay para que los campos se actualicen
+    setTimeout(() => {
+      document.getElementById('guardar-btn')?.click()
+    }, 100)
+  }
+}, [])
+
+  const añadirAlCarrito = () => {
+    if (!nombre.trim()) {
+      mostrarMensaje('Por favor, dale un nombre a tu pizza', 'error')
+      return
+    }
+
+    if (seleccionados.length === 0) {
+      mostrarMensaje('Por favor, selecciona al menos un ingrediente', 'error')
+      return
+    }
+
+    const ingredientesTexto = ingredientesSeleccionadosDetalle.map(i => i.nombre).join(', ')
+
+    agregarAlCarrito({
+      id: `personalizada-${Date.now()}`,
+      nombre: nombre,
+      ingredientes: `Base: ${bases.find(b => b.id === base)?.nombre} | ${ingredientesTexto}`,
+      precio: precioTotal,
+      imagen: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=100&fit=crop',
+      tipo: 'personalizada'
+    })
+
+    mostrarMensaje(`🍕 "${nombre}" añadida al carrito`, 'exito')
+    setTimeout(() => {
+      navigate('/carrito')
+    }, 1000)
+  }
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -57,11 +187,11 @@ function CreaTuPizza() {
         zIndex: 100
       }}>
         <img
-  src="/logo.jpeg"
-  alt="Masa Madre"
-  onClick={() => navigate('/')}
-  style={{ height: '60px', cursor: 'pointer' }}
-/>
+          src="/logo.jpeg"
+          alt="Masa Madre"
+          onClick={() => navigate('/')}
+          style={{ height: '60px', cursor: 'pointer' }}
+        />
         <div style={{ display: 'flex', gap: '30px' }}>
           {[['Inicio', '/'], ['Menú', '/menu'], ['Crea tu pizza', '/crea-tu-pizza'], ['Sobre nosotros', '/sobre-nosotros']].map(([label, path]) => (
             <span
@@ -89,6 +219,38 @@ function CreaTuPizza() {
           Carrito
         </button>
       </nav>
+
+      {/* BANNER DE MENSAJE */}
+      {mensaje && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: mensaje.tipo === 'exito' ? '#27ae60' : '#c0392b',
+          color: 'white',
+          padding: '15px 25px',
+          borderRadius: '10px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease',
+          fontFamily: 'Georgia, serif'
+        }}>
+          {mensaje.texto}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
 
       {/* HERO */}
       <div style={{
@@ -229,7 +391,9 @@ function CreaTuPizza() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '15px'
         }}>
           <div>
             <p style={{ color: '#999', fontSize: '0.9rem' }}>Precio total</p>
@@ -239,29 +403,35 @@ function CreaTuPizza() {
           </div>
           <div style={{ display: 'flex', gap: '15px' }}>
             <button
+              id="guardar-btn"
+              onClick={guardarPizza}
+              disabled={guardando}
               style={{
                 backgroundColor: 'transparent',
                 border: '2px solid #27ae60',
                 color: '#27ae60',
                 padding: '12px 25px',
                 borderRadius: '50px',
-                cursor: 'pointer',
+                cursor: guardando ? 'not-allowed' : 'pointer',
                 fontFamily: 'Georgia, serif',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                opacity: guardando ? 0.5 : 1
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = '#27ae60'
-                e.currentTarget.style.color = 'white'
+                if (!guardando) {
+                  e.currentTarget.style.backgroundColor = '#27ae60'
+                  e.currentTarget.style.color = 'white'
+                }
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.backgroundColor = 'transparent'
                 e.currentTarget.style.color = '#27ae60'
               }}
             >
-              Guardar pizza
+              {guardando ? 'Guardando...' : 'Guardar pizza'}
             </button>
             <button
-              onClick={() => navigate('/carrito')}
+              onClick={añadirAlCarrito}
               style={{
                 backgroundColor: '#c0392b',
                 color: 'white',
@@ -292,7 +462,7 @@ function CreaTuPizza() {
         fontSize: '0.9rem'
       }}>
         <p style={{ color: 'white', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: '1.3rem' }}>
-        Masa Madre
+          Masa Madre
         </p>
         <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>

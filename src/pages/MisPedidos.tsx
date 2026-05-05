@@ -135,31 +135,6 @@ function MisPedidos() {
                   <p style={{ color: '#c0392b', fontWeight: 'bold', fontSize: '1.3rem', margin: 0 }}>
                     {pedido.total.toFixed(2)}€
                   </p>
-                  <button
-                    onClick={() => navigate('/menu')}
-                    style={{
-                      marginTop: '10px',
-                      backgroundColor: 'transparent',
-                      border: '2px solid #c0392b',
-                      color: '#c0392b',
-                      padding: '6px 16px',
-                      borderRadius: '50px',
-                      cursor: 'pointer',
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '0.8rem',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.backgroundColor = '#c0392b'
-                      e.currentTarget.style.color = 'white'
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                      e.currentTarget.style.color = '#c0392b'
-                    }}
-                  >
-                    Repetir pedido
-                  </button>
                 </div>
               </div>
             </div>
