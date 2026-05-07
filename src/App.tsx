@@ -12,6 +12,7 @@ import MisPedidos from './pages/MisPedidos'
 import MisPizzas from './pages/MisPizzas'
 import AdminPedidos from './pages/AdminPedidos'
 import AdminMenu from './pages/AdminMenu'
+import Registro from './pages/Registro'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/mis-pizzas" element={<MisPizzas />} />
           <Route path="/admin/pedidos" element={<AdminPedidos />} />
           <Route path="/admin/menu" element={<AdminMenu />} />
+          <Route path="/registro" element={<Registro />} />
         </Routes>
       </BrowserRouter>
     </CarritoProvider>
