@@ -34,7 +34,8 @@ function Navbar() {
   // Enlaces solo para admin
   const enlacesAdmin = usuario?.rol === 'admin' ? [
     ['Admin Pedidos', '/admin/pedidos'],
-    ['Admin Menú', '/admin/menu']
+    ['Admin Menú', '/admin/menu'],
+    ['Admin Usuarios', '/admin/usuarios'] 
   ] : []
 
   return (

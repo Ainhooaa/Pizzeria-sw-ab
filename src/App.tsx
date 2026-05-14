@@ -14,6 +14,8 @@ import MisPedidos from './pages/MisPedidos'
 import MisPizzas from './pages/MisPizzas'
 import AdminPedidos from './pages/AdminPedidos'
 import AdminMenu from './pages/AdminMenu'
+import AdminUsuarios from './pages/AdminUsuarios'
+
 
 function App() {
   return (
@@ -60,6 +62,11 @@ function App() {
           <Route path="/admin/menu" element={
             <ProtectedRoute adminOnly={true}>
               <AdminMenu />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/usuarios" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminUsuarios />
             </ProtectedRoute>
           } />
         </Routes>

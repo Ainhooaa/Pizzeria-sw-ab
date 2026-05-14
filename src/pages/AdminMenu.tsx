@@ -35,27 +35,37 @@ function AdminMenu() {
   }
 
   const añadir = () => {
-    if (!nombre || !ingredientes || !precio) return
-    const nueva = {
-      nombre,
-      ingredientes: ingredientes.split(',').map(i => i.trim()),
-      precio: parseFloat(precio),
-      disponible: true
-    }
-    fetch('http://localhost:5000/api/pizzas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nueva)
-    })
-      .then(res => res.json())
-      .then(data => {
-        setPizzas(prev => [...prev, data])
-        setNombre('')
-        setIngredientes('')
-        setPrecio('')
-        setMostrarFormulario(false)
-      })
+  if (!nombre || !ingredientes || !precio) return
+  
+  const nueva = {
+    nombre,
+    ingredientes: ingredientes.split(',').map(i => i.trim()),
+    precio: parseFloat(precio),
+    disponible: true,  // 👈 Siempre true
+    imagen: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop',
+    categoria: 'clasica',
+    destacada: false
   }
+  
+  fetch('http://localhost:5000/api/pizzas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(nueva)
+  })
+    .then(res => res.json())
+    .then(data => {
+      setPizzas(prev => [...prev, data])
+      setNombre('')
+      setIngredientes('')
+      setPrecio('')
+      setMostrarFormulario(false)
+      alert('✅ Pizza añadida correctamente')
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      alert('❌ Error al añadir la pizza')
+    })
+}
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
