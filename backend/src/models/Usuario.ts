@@ -36,7 +36,7 @@ const usuarioSchema = new mongoose.Schema<IUsuario, {}, IUsuarioMethods>({
   },
   direccion: {
     type: String,
-    default: '',
+    required: true,
   },
   password: {
     type: String,
@@ -44,7 +44,7 @@ const usuarioSchema = new mongoose.Schema<IUsuario, {}, IUsuarioMethods>({
   },
   rol: {
     type: String,
-    enum: ['user', 'admin', 'cliente'],
+    enum: ['user', 'admin'],
     default: 'user',
   },
   pizzasFavoritas: [{

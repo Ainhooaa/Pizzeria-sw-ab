@@ -7,9 +7,6 @@ function Checkout() {
   const navigate = useNavigate()
   const { items, total, vaciarCarrito } = useCarrito()
   const [forma, setForma] = useState<'entrega' | 'recogida'>('entrega')
-  const [nombre, setNombre] = useState('')
-  const [telefono, setTelefono] = useState('')
-  const [direccion, setDireccion] = useState('')
   const [instrucciones, setInstrucciones] = useState('')
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
@@ -18,25 +15,12 @@ function Checkout() {
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null
 
   const confirmarPedido = async () => {
-    // Validar usuario logueado
     if (!usuario) {
       alert('Debes iniciar sesión para hacer un pedido')
       navigate('/login')
       return
     }
 
-    // Validar campos obligatorios
-    if (!nombre || !telefono) {
-      setError('El nombre y teléfono son obligatorios')
-      return
-    }
-
-    if (forma === 'entrega' && !direccion) {
-      setError('La dirección es obligatoria para envío a domicilio')
-      return
-    }
-
-    // Validar que el carrito no esté vacío
     if (items.length === 0) {
       alert('Tu carrito está vacío')
       navigate('/menu')
@@ -49,9 +33,9 @@ function Checkout() {
     const pedido = {
       emailUsuario: usuario.email,
       cliente: {
-        nombre,
-        direccion: forma === 'entrega' ? direccion : 'Recogida en local',
-        telefono
+        nombre: usuario.nombre,
+        direccion: forma === 'entrega' ? usuario.direccion : 'Recogida en local',
+        telefono: usuario.telefono
       },
       items: items.map(item => ({
         tipo: item.tipo,
@@ -72,8 +56,6 @@ function Checkout() {
       })
 
       if (res.ok) {
-        const data = await res.json()
-        console.log('Pedido creado:', data)
         vaciarCarrito()
         navigate('/confirmacion')
       } else {
@@ -88,7 +70,6 @@ function Checkout() {
     }
   }
 
-  // Si el carrito está vacío, mostrar mensaje y botón para volver al menú
   if (items.length === 0 && !cargando) {
     return (
       <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -133,13 +114,9 @@ function Checkout() {
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-
-      {/* NAVBAR */}
       <Navbar />
 
-      {/* CONTENIDO */}
       <div style={{ flex: 1, maxWidth: '700px', margin: '0 auto', padding: '60px 20px', width: '100%' }}>
-
         <h1 style={{
           fontFamily: 'Cormorant Garamond, serif',
           fontStyle: 'italic',
@@ -149,9 +126,23 @@ function Checkout() {
         }}>
           Tu pedido
         </h1>
-        <p style={{ color: '#999', marginBottom: '40px' }}>Rellena tus datos para confirmar el pedido</p>
+        <p style={{ color: '#999', marginBottom: '40px' }}>Confirma los detalles de tu pedido</p>
 
-        {/* Resumen del pedido */}
+        {/* DATOS DEL USUARIO */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '25px',
+          marginBottom: '25px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
+        }}>
+          <h3 style={{ color: '#2c2c2c', marginBottom: '15px' }}>Tus datos</h3>
+          <p style={{ color: '#555', marginBottom: '5px' }}><strong>Nombre:</strong> {usuario?.nombre}</p>
+          <p style={{ color: '#555', marginBottom: '5px' }}><strong>Teléfono:</strong> {usuario?.telefono}</p>
+          <p style={{ color: '#555', marginBottom: '5px' }}><strong>Dirección:</strong> {usuario?.direccion}</p>
+        </div>
+
+        {/* RESUMEN DEL PEDIDO */}
         <div style={{
           backgroundColor: 'white',
           borderRadius: '16px',
@@ -196,8 +187,7 @@ function Checkout() {
                   cursor: 'pointer',
                   fontFamily: 'Georgia, serif',
                   fontSize: '0.95rem',
-                  fontWeight: forma === op ? 'bold' : 'normal',
-                  transition: 'all 0.2s'
+                  fontWeight: forma === op ? 'bold' : 'normal'
                 }}
               >
                 {op === 'entrega' ? 'Entrega a domicilio' : 'Recoger en local'}
@@ -206,7 +196,7 @@ function Checkout() {
           </div>
         </div>
 
-        {/* DATOS PERSONALES */}
+        {/* INSTRUCCIONES ESPECIALES */}
         <div style={{
           backgroundColor: 'white',
           borderRadius: '16px',
@@ -214,117 +204,28 @@ function Checkout() {
           marginBottom: '25px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
         }}>
-          <h3 style={{ color: '#2c2c2c', marginBottom: '20px' }}>Datos personales</h3>
-
-          {/* Nombre */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#555', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>
-              Nombre completo *
-            </label>
-            <input
-              type="text"
-              value={nombre}
-              onChange={e => setNombre(e.target.value)}
-              placeholder="Tu nombre"
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '10px',
-                border: '1.5px solid #ddd',
-                fontSize: '1rem',
-                fontFamily: 'Georgia, serif',
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = '#c0392b'}
-              onBlur={e => e.currentTarget.style.borderColor = '#ddd'}
-            />
-          </div>
-
-          {/* Teléfono */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#555', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>
-              Teléfono *
-            </label>
-            <input
-              type="tel"
-              value={telefono}
-              onChange={e => setTelefono(e.target.value)}
-              placeholder="+34 600 000 000"
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '10px',
-                border: '1.5px solid #ddd',
-                fontSize: '1rem',
-                fontFamily: 'Georgia, serif',
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = '#c0392b'}
-              onBlur={e => e.currentTarget.style.borderColor = '#ddd'}
-            />
-          </div>
-
-          {/* Dirección (solo si es entrega) */}
-          {forma === 'entrega' && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ color: '#555', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>
-                Dirección de entrega *
-              </label>
-              <input
-                type="text"
-                value={direccion}
-                onChange={e => setDireccion(e.target.value)}
-                placeholder="Calle, número, piso..."
-                style={{
-                  width: '100%',
-                  padding: '12px 15px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #ddd',
-                  fontSize: '1rem',
-                  fontFamily: 'Georgia, serif',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={e => e.currentTarget.style.borderColor = '#c0392b'}
-                onBlur={e => e.currentTarget.style.borderColor = '#ddd'}
-              />
-            </div>
-          )}
-
-          {/* Instrucciones */}
-          <div>
-            <label style={{ color: '#555', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>
-              Instrucciones especiales (opcional)
-            </label>
-            <textarea
-              value={instrucciones}
-              onChange={e => setInstrucciones(e.target.value)}
-              placeholder="Sin cebolla, alérgias, instrucciones para el repartidor..."
-              rows={3}
-              style={{
-                width: '100%',
-                padding: '12px 15px',
-                borderRadius: '10px',
-                border: '1.5px solid #ddd',
-                fontSize: '1rem',
-                fontFamily: 'Georgia, serif',
-                outline: 'none',
-                boxSizing: 'border-box',
-                resize: 'vertical',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = '#c0392b'}
-              onBlur={e => e.currentTarget.style.borderColor = '#ddd'}
-            />
-          </div>
+          <h3 style={{ color: '#2c2c2c', marginBottom: '15px' }}>Instrucciones especiales</h3>
+          <textarea
+            value={instrucciones}
+            onChange={e => setInstrucciones(e.target.value)}
+            placeholder="Sin cebolla, alergias, instrucciones para el repartidor..."
+            rows={3}
+            style={{
+              width: '100%',
+              padding: '12px 15px',
+              borderRadius: '10px',
+              border: '1.5px solid #ddd',
+              fontSize: '1rem',
+              fontFamily: 'Georgia, serif',
+              outline: 'none',
+              boxSizing: 'border-box',
+              resize: 'vertical'
+            }}
+            onFocus={e => e.currentTarget.style.borderColor = '#c0392b'}
+            onBlur={e => e.currentTarget.style.borderColor = '#ddd'}
+          />
         </div>
 
-        {/* Mensaje de error */}
         {error && (
           <div style={{
             backgroundColor: '#fdf0f0',
@@ -333,14 +234,12 @@ function Checkout() {
             padding: '12px',
             marginBottom: '20px',
             color: '#c0392b',
-            fontSize: '0.9rem',
             textAlign: 'center'
           }}>
             {error}
           </div>
         )}
 
-        {/* BOTÓN CONFIRMAR */}
         <button
           onClick={confirmarPedido}
           disabled={cargando}
@@ -353,20 +252,13 @@ function Checkout() {
             borderRadius: '50px',
             fontSize: '1.1rem',
             cursor: cargando ? 'not-allowed' : 'pointer',
-            fontFamily: 'Georgia, serif',
-            letterSpacing: '1px',
-            boxShadow: '0 4px 15px rgba(192,57,43,0.3)',
-            transition: 'transform 0.2s'
+            fontFamily: 'Georgia, serif'
           }}
-          onMouseEnter={e => { if (!cargando) e.currentTarget.style.transform = 'scale(1.02)' }}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           {cargando ? 'Procesando...' : 'Confirmar pedido →'}
         </button>
-
       </div>
 
-      {/* FOOTER */}
       <footer style={{
         backgroundColor: '#2c2c2c',
         color: '#aaa',
@@ -380,7 +272,6 @@ function Checkout() {
         <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>
       </footer>
-
     </div>
   )
 }

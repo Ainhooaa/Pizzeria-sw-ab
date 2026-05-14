@@ -12,8 +12,8 @@ function Registro() {
   const [cargando, setCargando] = useState(false)
 
   const handleRegistro = async () => {
-    if (!nombre || !email || !password) {
-      setError('Nombre, email y contraseña son obligatorios')
+    if (!nombre || !email || !password || !telefono || !direccion) {
+      setError('Todos los campos son obligatorios')
       return
     }
 
@@ -21,7 +21,7 @@ function Registro() {
     setError('')
 
     try {
-      const res = await fetch('http://localhost:3000/usuarios/registro', {
+      const res = await fetch('http://localhost:5000/api/usuarios/registro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, email, password, telefono, direccion })
@@ -180,7 +180,7 @@ function Registro() {
           </div>
 
           <div style={{ marginBottom: '15px' }}>
-            <label style={{ color: '#555', display: 'block', marginBottom: '6px' }}>Teléfono (opcional)</label>
+            <label style={{ color: '#555', display: 'block', marginBottom: '6px' }}>Teléfono *</label>
             <input
               type="tel"
               value={telefono}
@@ -198,12 +198,12 @@ function Registro() {
           </div>
 
           <div style={{ marginBottom: '30px' }}>
-            <label style={{ color: '#555', display: 'block', marginBottom: '6px' }}>Dirección (opcional)</label>
+            <label style={{ color: '#555', display: 'block', marginBottom: '6px' }}>Dirección *</label>
             <input
               type="text"
               value={direccion}
               onChange={e => setDireccion(e.target.value)}
-              placeholder="Calle, número..."
+              placeholder="Calle, número, piso..."
               style={{
                 width: '100%',
                 padding: '12px 15px',
@@ -244,15 +244,15 @@ function Registro() {
             </span>
           </div>
           <div style={{ textAlign: 'center', marginTop: '15px' }}>
-        <span
-            onClick={() => navigate('/menu')}
-            style={{ color: '#999', cursor: 'pointer', fontSize: '0.85rem' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
-            onMouseLeave={e => e.currentTarget.style.color = '#999'}
-        >
-            ← Volver al menú principal
-        </span>
-        </div>
+            <span
+              onClick={() => navigate('/menu')}
+              style={{ color: '#999', cursor: 'pointer', fontSize: '0.85rem' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
+              onMouseLeave={e => e.currentTarget.style.color = '#999'}
+            >
+              ← Volver al menú principal
+            </span>
+          </div>
         </div>
       </div>
 
