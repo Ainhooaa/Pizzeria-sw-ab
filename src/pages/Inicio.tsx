@@ -1,10 +1,17 @@
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import Navbar from '../components/Navbar'
 import { useCarrito } from '../context/CarritoContext'
 
 function Inicio() {
   const navigate = useNavigate()
   const { agregarAlCarrito } = useCarrito()
+  const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'exito' | 'error' } | null>(null)
+
+  const mostrarMensaje = (texto: string, tipo: 'exito' | 'error') => {
+    setMensaje({ texto, tipo })
+    setTimeout(() => setMensaje(null), 3000)
+  }
 
   const pizzasDestacadas = [
     {
@@ -39,14 +46,43 @@ function Inicio() {
       imagen: pizza.imagen,
       tipo: 'menu'
     })
-    // Feedback opcional
-    console.log(`🍕 ${pizza.nombre} añadida al carrito`)
+    mostrarMensaje(`🍕 "${pizza.nombre}" añadida al carrito`, 'exito')
   }
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0' }}>
+      {/* BANNER DE MENSAJE */}
+      {mensaje && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: mensaje.tipo === 'exito' ? '#27ae60' : '#c0392b',
+          color: 'white',
+          padding: '15px 25px',
+          borderRadius: '10px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease',
+          fontFamily: 'Georgia, serif'
+        }}>
+          {mensaje.texto}
+        </div>
+      )}
 
-      {/* NAVBAR */}
+      <style>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
       <Navbar />
 
       {/* HERO */}
@@ -270,7 +306,6 @@ function Inicio() {
         <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>
       </footer>
-
     </div>
   )
 }

@@ -15,6 +15,7 @@ function Menu() {
   const navigate = useNavigate()
   const [pizzas, setPizzas] = useState<Pizza[]>([])
   const [cargando, setCargando] = useState(true)
+  const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'exito' | 'error' } | null>(null)
   const { agregarAlCarrito } = useCarrito()
 
   useEffect(() => {
@@ -29,6 +30,11 @@ function Menu() {
         setCargando(false)
       })
   }, [])
+
+  const mostrarMensaje = (texto: string, tipo: 'exito' | 'error') => {
+    setMensaje({ texto, tipo })
+    setTimeout(() => setMensaje(null), 3000)
+  }
 
   const getImagen = (nombre: string) => {
     const imagenes: Record<string, string> = {
@@ -50,14 +56,43 @@ function Menu() {
       imagen: getImagen(pizza.nombre),
       tipo: 'menu'
     })
-    // Feedback opcional: mostrar un mensaje o notificación
-    console.log(`🍕 ${pizza.nombre} añadida al carrito`)
+    mostrarMensaje(`🍕 "${pizza.nombre}" añadida al carrito`, 'exito')
   }
 
   return (
     <div style={{ fontFamily: 'Georgia, serif', backgroundColor: '#fdf8f0' }}>
+      {/* BANNER DE MENSAJE */}
+      {mensaje && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: mensaje.tipo === 'exito' ? '#27ae60' : '#c0392b',
+          color: 'white',
+          padding: '15px 25px',
+          borderRadius: '10px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease',
+          fontFamily: 'Georgia, serif'
+        }}>
+          {mensaje.texto}
+        </div>
+      )}
 
-      {/* NAVBAR */}
+      <style>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
       <Navbar />
 
       {/* HERO */}
@@ -85,7 +120,6 @@ function Menu() {
 
       {/* PIZZAS */}
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '60px 20px' }}>
-
         {cargando ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
             <p style={{ color: '#999', fontSize: '1.2rem' }}>Cargando pizzas...</p>
@@ -138,7 +172,7 @@ function Menu() {
                     </span>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation() // Evita que el click en el botón active el div padre
+                        e.stopPropagation()
                         handleAgregarAlCarrito(pizza)
                       }}
                       style={{
@@ -179,7 +213,6 @@ function Menu() {
         <p style={{ marginTop: '8px' }}>Calle Nieves Cano 12, Vitoria-Gasteiz · +34 945 123 456</p>
         <p style={{ marginTop: '8px' }}>© 2026 Masa Madre</p>
       </footer>
-
     </div>
   )
 }
