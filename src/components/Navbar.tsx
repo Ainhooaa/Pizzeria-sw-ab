@@ -17,6 +17,26 @@ function Navbar() {
     navigate('/')
   }
 
+  // Enlaces que siempre se muestran
+  const enlacesPublicos = [
+    ['Inicio', '/'],
+    ['Menú', '/menu'],
+    ['Crea tu pizza', '/crea-tu-pizza'],
+    ['Sobre nosotros', '/sobre-nosotros']
+  ]
+
+  // Enlaces que solo se muestran si está logueado
+  const enlacesPrivados = [
+    ...(usuario?.rol !== 'admin' ? [['Mis pedidos', '/mis-pedidos']] : []),
+    ...(usuario?.rol !== 'admin' ? [['Mis pizzas', '/mis-pizzas']] : [])
+  ]
+
+  // Enlaces solo para admin
+  const enlacesAdmin = usuario?.rol === 'admin' ? [
+    ['Admin Pedidos', '/admin/pedidos'],
+    ['Admin Menú', '/admin/menu']
+  ] : []
+
   return (
     <nav style={{
       backgroundColor: 'white',
@@ -37,7 +57,8 @@ function Navbar() {
       />
 
       <div style={{ display: 'flex', gap: '30px' }}>
-        {[['Inicio', '/'], ['Menú', '/menu'], ['Crea tu pizza', '/crea-tu-pizza'], ['Sobre nosotros', '/sobre-nosotros']].map(([label, path]) => (
+        {/* Enlaces públicos */}
+        {enlacesPublicos.map(([label, path]) => (
           <span
             key={path}
             onClick={() => navigate(path)}
@@ -46,6 +67,32 @@ function Navbar() {
             onMouseLeave={e => e.currentTarget.style.color = '#555'}
           >
             {label}
+          </span>
+        ))}
+        
+        {/* Enlaces privados (solo logueado) */}
+        {usuario && enlacesPrivados.map(([label, path]) => (
+          <span
+            key={path}
+            onClick={() => navigate(path)}
+            style={{ cursor: 'pointer', color: '#555', fontSize: '0.95rem' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
+            onMouseLeave={e => e.currentTarget.style.color = '#555'}
+          >
+            {label}
+          </span>
+        ))}
+
+        {/* Enlaces admin (solo si es admin) */}
+        {enlacesAdmin.map(([label, path]) => (
+          <span
+            key={path}
+            onClick={() => navigate(path)}
+            style={{ cursor: 'pointer', color: '#c0392b', fontSize: '0.95rem', fontWeight: 'bold' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#e74c3c'}
+            onMouseLeave={e => e.currentTarget.style.color = '#c0392b'}
+          >
+            🔒 {label}
           </span>
         ))}
       </div>
@@ -61,16 +108,6 @@ function Navbar() {
             >
               👤 {usuario.nombre}
             </span>
-            {usuario.rol !== 'admin' && (
-              <span
-                onClick={() => navigate('/mis-pizzas')}
-                style={{ color: '#555', cursor: 'pointer', fontSize: '0.95rem' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#c0392b'}
-                onMouseLeave={e => e.currentTarget.style.color = '#555'}
-              >
-                Mis pizzas
-              </span>
-            )}
             <button
               onClick={cerrarSesion}
               style={{
